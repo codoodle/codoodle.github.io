@@ -4,6 +4,7 @@ import globals from "globals";
 import eslintJs from "@eslint/js";
 import eslintNext from "@next/eslint-plugin-next";
 import eslintJsxA11y from "eslint-plugin-jsx-a11y";
+import eslintPrettier from "eslint-plugin-prettier/recommended";
 import eslintReact from "eslint-plugin-react";
 import eslintReactHooks from "eslint-plugin-react-hooks";
 import eslintTs from "typescript-eslint";
@@ -18,6 +19,7 @@ const config = defineConfig([
     extends: [
       eslintJs.configs.recommended,
       eslintTs.configs.recommended,
+      eslintPrettier,
     ],
     languageOptions: {
       globals: {
