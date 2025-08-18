@@ -1,4 +1,4 @@
 {
   "files": [],
-  "references": [{ "path": "apps/www" }]
+  "references": [{ "path": "apps/www" }, { "path": "packages/codoodle-utils" }]
 }

@@ -1,0 +1,24 @@
+{
+  "name": "@codoodle/utils",
+  "version": "0.0.0",
+  "author": {
+    "name": "Yeongseok Yoon",
+    "url": "https://codoodle.github.io"
+  },
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "clean": "tsc --build tsconfig.build.json --clean",
+    "build": "tsc --build tsconfig.build.json"
+  }
+}
