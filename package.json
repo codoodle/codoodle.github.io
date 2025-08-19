@@ -15,6 +15,12 @@
       "packages/*"
     ]
   },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "clean": "tsc --build tsconfig.build.json --clean",
+    "build": "tsc --build tsconfig.build.json"
+  },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
     "@next/eslint-plugin-next": "^15.4.6",
