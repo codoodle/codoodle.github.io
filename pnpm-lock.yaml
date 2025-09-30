@@ -91,6 +91,8 @@ importers:
         specifier: 'catalog:'
         version: 19.1.7(@types/react@19.1.10)
 
+  packages/codoodle-mdx: {}
+
   packages/codoodle-utils:
     dependencies:
       clsx:
