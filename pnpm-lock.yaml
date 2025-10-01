@@ -4,6 +4,24 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@types/react':
+      specifier: ^19.1.10
+      version: 19.1.10
+    '@types/react-dom':
+      specifier: ^19.1.7
+      version: 19.1.7
+    next:
+      specifier: ^15.4.6
+      version: 15.4.6
+    react:
+      specifier: ^19.1.1
+      version: 19.1.1
+    react-dom:
+      specifier: ^19.1.1
+      version: 19.1.1
+
 importers:
 
   .:
@@ -53,6 +71,12 @@ importers:
 
   apps/www:
     dependencies:
+      '@codoodle/mdx':
+        specifier: workspace:*
+        version: link:../../packages/codoodle-mdx
+      '@codoodle/utils':
+        specifier: workspace:*
+        version: link:../../packages/codoodle-utils
       next:
         specifier: 'catalog:'
         version: 15.4.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
