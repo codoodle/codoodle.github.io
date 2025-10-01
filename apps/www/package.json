@@ -12,7 +12,10 @@
     "typecheck": "tsc --noEmit --composite false --incremental false",
     "dev": "next dev",
     "build": "next build",
-    "start": "pnpm dlx serve@latest out"
+    "start": "pnpm dlx serve@latest out",
+    "mdx": "mdx ./content",
+    "mdx-clean": "mdx ./content --clean",
+    "mdx-watch": "mdx ./content --watch"
   },
   "dependencies": {
     "@codoodle/mdx": "workspace:*",
