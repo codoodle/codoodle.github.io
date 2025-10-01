@@ -1,2 +1,7 @@
 export { classNames } from "./class-names";
-export { concatSlug, toSlugArray, trimSlugSuffix } from "./slug";
+export {
+  concatSlug,
+  toSlugArray,
+  trimSlugPrefix,
+  trimSlugSuffix,
+} from "./slug";

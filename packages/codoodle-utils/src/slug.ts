@@ -1,3 +1,12 @@
+export function trimSlugPrefix(slug: string | string[], count: number): string {
+  if (count <= 0) {
+    return Array.isArray(slug) ? slug.join("/") : slug;
+  }
+  return (Array.isArray(slug) ? slug.filter((f) => !!f) : toSlugArray(slug))
+    .slice(count)
+    .join("/");
+}
+
 export function trimSlugSuffix(slug: string | string[], count: number): string {
   if (count <= 0) {
     return Array.isArray(slug) ? slug.join("/") : slug;
