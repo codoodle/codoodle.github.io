@@ -23,5 +23,21 @@
     "test": "vitest",
     "clean": "tsc --build tsconfig.build.json --clean",
     "build": "tsc --build tsconfig.build.json"
+  },
+  "dependencies": {
+    "@codoodle/utils": "workspace:*",
+    "@mdx-js/mdx": "^3.1.1",
+    "chokidar": "^4.0.3",
+    "globby": "^15.0.0",
+    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.0",
+    "p-map": "^7.0.3",
+    "picomatch": "^4.0.3",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/mdx": "^2.0.13",
+    "@types/picomatch": "^4.0.2"
   }
 }
