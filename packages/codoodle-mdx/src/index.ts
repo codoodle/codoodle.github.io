@@ -1,4 +1,5 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cpus } from "node:os";
 import { dirname, relative, resolve } from "node:path";
 
 import { compile, CompileOptions } from "@mdx-js/mdx";
@@ -43,6 +44,7 @@ export type MdxConfig = {
     [pattern: string]: ContentConfig;
   };
   contentCompileOptions?: Omit<CompileOptions, "outputFormat">;
+  concurrency?: number;
 };
 
 type ProcessedContent = {
@@ -67,6 +69,21 @@ if (isCleanMode) {
     force: true,
   });
   process.exit(0);
+}
+
+const CONCURRENCY_CONFIG = {
+  MIN: 2,
+  MAX: 12,
+  CPU_MULTIPLIER: 2,
+} as const;
+
+function calculateOptimalConcurrency(): number {
+  const cpuCount = cpus().length;
+  const calculated = cpuCount * CONCURRENCY_CONFIG.CPU_MULTIPLIER;
+  return Math.min(
+    Math.max(calculated, CONCURRENCY_CONFIG.MIN),
+    CONCURRENCY_CONFIG.MAX,
+  );
 }
 
 function findMatchingContentConfig(
@@ -133,6 +150,7 @@ const compileOptions: CompileOptions = {
   outputFormat: "function-body",
 };
 const globPatterns = Object.keys(config.content);
+const defaultConcurrency = calculateOptimalConcurrency();
 
 async function processSingleFile(
   filePath: string,
@@ -250,7 +268,7 @@ async function processAllFiles(): Promise<ProcessedContent[]> {
       globMatchedPaths,
       async (path) => processSingleFile(path, sourceDirectory),
       {
-        concurrency: 4,
+        concurrency: config.concurrency ?? defaultConcurrency,
       },
     )
   ).filter((item) => !!item) as ProcessedContent[];
