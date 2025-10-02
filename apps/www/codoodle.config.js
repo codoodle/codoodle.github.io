@@ -1,3 +1,6 @@
+import rehypePrettyCode from "rehype-pretty-code";
+import remarkGfm from "remark-gfm";
+
 /**
  * @type {import("@codoodle/mdx").MdxConfig}
  */
@@ -92,5 +95,17 @@ export default {
   },
   contentCompileOptions: {
     jsx: true,
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [
+      [
+        rehypePrettyCode,
+        {
+          theme: {
+            light: "material-theme-lighter",
+            dark: "material-theme-darker",
+          },
+        },
+      ],
+    ],
   },
 };
