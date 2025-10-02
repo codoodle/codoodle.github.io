@@ -19,7 +19,9 @@
     "typecheck": "pnpm -r --reverse run typecheck",
     "test": "vitest",
     "clean": "tsc --build tsconfig.build.json --clean",
-    "build": "tsc --build tsconfig.build.json"
+    "build": "tsc --build tsconfig.build.json",
+    "build:mdx": "pnpm -F @codoodle/www mdx",
+    "build:www": "pnpm -F @codoodle/www build"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
