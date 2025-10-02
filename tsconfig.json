@@ -1,4 +1,8 @@
 {
   "files": [],
-  "references": [{ "path": "apps/www" }, { "path": "packages/codoodle-utils" }]
+  "references": [
+    { "path": "apps/www" },
+    { "path": "packages/codoodle-utils" },
+    { "path": "packages/codoodle-mdx" }
+  ]
 }
