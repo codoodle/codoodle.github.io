@@ -173,16 +173,22 @@ async function processSingleFile(
       contentToProcess = transformedResult.content;
     }
 
-    const compiledMdx = await compile(contentToProcess, compileOptions);
+    const compiledMdx = contentToProcess
+      ? await compile(contentToProcess, compileOptions)
+      : undefined;
     const generatedCode = `/* Auto-generated file - do not edit directly */
 /* eslint-disable prettier/prettier */
 
 const frontmatter = ${JSON.stringify(parsedFrontmatter, null, 2)};
 export default {
   ...frontmatter,
-  ContentComponent: (() => {
+  ContentComponent: ${
+    compiledMdx
+      ? `(() => {
     ${compiledMdx}
-  })().default,
+  })().default`
+      : "undefined"
+  },
 };`;
 
     const contentSlug = relativeFilePath
