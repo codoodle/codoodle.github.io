@@ -238,7 +238,7 @@ export default {
     };
 
     console.log(
-      `✓ Processed: ${relativeFilePath} → ${relative(outputDirectory, outputFilePath)}`,
+      `✅ Processed: ${relativeFilePath} → ${relative(outputDirectory, outputFilePath)}`,
     );
     return processedItem;
   } catch (error) {
