@@ -86,6 +86,12 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.runner }} run build
       - name: Install dependencies workspace:*
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+      - name: Install Playwright browsers (npm)
+        if: ${{ steps.detect-package-manager.outputs.manager == 'npm' }}
+        run: npx playwright install chromium
+      - name: Install Playwright browsers (pnpm)
+        if: ${{ steps.detect-package-manager.outputs.manager == 'pnpm' }}
+        run: pnpm dlx playwright install --with-deps chromium
       - name: Build content
         run: ${{ steps.detect-package-manager.outputs.runner }} run build:mdx
       - name: Build website
