@@ -133,7 +133,9 @@ function getCategories(slug: string | string[]) {
     : toSlugArray(slug);
   while (slugArray.length > 0) {
     const parentSlug = concatSlug(slugArray);
-    const parent = categories.find((f) => f.slug === parentSlug);
+    const parent = categories.find((f) => f.slug === parentSlug) as
+      | Category
+      | undefined;
     if (parent) {
       ancestors.unshift(parent);
     }
