@@ -393,6 +393,7 @@ ${exportContent}
   }
 
   const indexContent = `/* Auto-generated file - do not edit directly */
+/* eslint-disable prettier/prettier */
 
 ${imports.join("\n")}
 
