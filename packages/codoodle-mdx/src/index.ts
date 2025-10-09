@@ -143,6 +143,50 @@ function createZodSchema(
   return z.object(shape);
 }
 
+function createTypeScriptType(
+  frontmatter?: Record<string, FrontmatterField>,
+): string {
+  if (!frontmatter) {
+    return "{}";
+  }
+
+  const fields: string[] = [];
+
+  for (const [key, field] of Object.entries(frontmatter)) {
+    let typeStr: string;
+
+    switch (field.type) {
+      case "string":
+        typeStr = "string";
+        break;
+      case "date":
+        typeStr = "string";
+        break;
+      case "number":
+        typeStr = "number";
+        break;
+      case "boolean":
+        typeStr = "boolean";
+        break;
+      case "array": {
+        const arrayType = createTypeScriptType(field.fields);
+        typeStr = `${arrayType}[]`;
+        break;
+      }
+      case "object":
+        typeStr = createTypeScriptType(field.fields);
+        break;
+      default:
+        typeStr = "unknown";
+    }
+
+    const optional = field.required ? "" : "?";
+    fields.push(`  ${key}${optional}: ${typeStr};`);
+  }
+
+  return `{\n${fields.join("\n")}\n}`;
+}
+
 const configPath = resolve(process.cwd(), "codoodle.config.js");
 const config = (await import(configPath)).default as MdxConfig;
 const compileOptions: CompileOptions = {
@@ -379,9 +423,18 @@ async function generateIndexFile(processedContents: ProcessedContent[]) {
   for (const [contentTypeName, exportContent] of contentTypeExports) {
     const arrayVariableName = `${contentTypeName}Array`;
 
+    // 해당 콘텐츠 타입의 첫 번째 아이템에서 frontmatter 스키마 가져오기
+    const firstItem = contentsByType.get(contentTypeName)?.[0];
+    const contentConfig = firstItem
+      ? findMatchingContentConfig(firstItem.relativePath)
+      : undefined;
+    const frontmatterType = createTypeScriptType(contentConfig?.frontmatter);
+
     arrayDefinitions.push(`const ${arrayVariableName} = [
 ${exportContent}
-];`);
+] as (${frontmatterType} & {
+  ContentComponent?: (props?: Record<string, unknown>) => React.JSX.Element;
+} & { slug: string })[];`);
   }
 
   const multipleExports: string[] = [];
