@@ -1,3 +1,4 @@
+import rehypeMermaid from "rehype-mermaid";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
 
@@ -97,6 +98,7 @@ export default {
     jsx: true,
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
+      rehypeMermaid,
       [
         rehypePrettyCode,
         {
