@@ -1,0 +1,194 @@
+---
+author: Yoon Yeongseok
+title: "GitHub Alert 플러그인 만들기: @codoodle/remark-alerts 개발기"
+description: GitHub style alert 블록을 지원하는 remark 플러그인을 직접 만들어보며 학습한 내용과 개발 내용입니다.
+datePublished: 2025-10-11T00:00:00Z
+dateModified: 2025-10-11T00:00:00Z
+---
+
+## 왜 remark-alerts 플러그인을 만들었을까?
+
+블로그나 문서를 작성할 때 중요한 정보나 경고사항을 시각적으로 강조해야 할 경우가 많습니다. GitHub에서는 이런 요구사항을 충족하기 위해 [Alert 문법](https://docs.github.com/ko/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts)을 도입했는데, 이를 자체 블로그에서도 사용하고 싶었습니다. 이미 몇 가지 플러그인이 있지만 remark/rehype 에코시스템과 AST 조작 방법을 학습하고자 직접 개발하였습니다.
+
+## 기본 alert 문법과 동작 방식
+
+`@codoodle/remark-alerts`는 다음과 같은 GitHub style alert 문법을 지원합니다.
+
+> [!NOTE]
+> 사용자가 콘텐츠를 훑어볼 때도 알아야 할 유용한 정보입니다.
+
+> [!TIP]
+> 작업을 더 잘하거나 더 쉽게 할 수 있는 도움이 되는 조언입니다.
+
+> [!IMPORTANT]
+> 사용자가 목표를 달성하기 위해 알아야 할 핵심 정보입니다.
+
+> [!WARNING]
+> 문제를 피하기 위해 사용자의 즉각적인 주의가 필요한 긴급 정보입니다.
+
+> [!CAUTION]
+> 특정 행동의 위험이나 부정적인 결과에 대해 조언합니다.
+
+각 alert 타입은 고유한 아이콘과 스타일을 가지며, Primer의 [Octicons](https://primer.style/foundations/icons/)을 사용하여 시각적으로 구분됩니다.
+
+## 개발 과정
+
+### 프로젝트 구조 설계
+
+먼저 기본적인 프로젝트 구조를 설정했습니다.
+
+```typescript
+export type AlertType =
+  | "NOTE"
+  | "TIP"
+  | "IMPORTANT"
+  | "WARNING"
+  | "CAUTION"
+  | string;
+
+export default function remarkAlerts(options: { types?: AlertType[] }) {
+  // 플러그인 로직
+}
+```
+
+`AlertType`을 union type으로 정의하여 기본 타입들은 자동완성을 제공하면서도, 커스텀 타입도 허용하도록 설계했습니다.
+
+### AST 변환 로직 구현
+
+remark 플러그인의 핵심은 markdown AST(mdast)를 조작하는 것입니다. blockquote 노드를 찾아서 alert 패턴과 매칭하는 로직을 구현했습니다.
+
+```typescript
+const ALERTS_REGEX = new RegExp(
+  "^\\s*\\[!(" + types.map(escapeRegExp).join("|") + ")\\](.*)",
+  "i",
+);
+
+visit(tree, "blockquote", (node) => {
+  const child = node.children?.[0] as Paragraph | undefined;
+  const childChild = child?.children?.[0] as Text | undefined;
+
+  if (child?.type === "paragraph" && childChild?.type === "text") {
+    const match = ALERTS_REGEX.exec(childChild.value);
+    if (match) {
+      // alert로 변환
+    }
+  }
+});
+```
+
+정규식을 사용하여 `[!TYPE]` 패턴을 감지하고, 매칭되는 경우 해당 blockquote를 alert div로 변환합니다.
+
+### 아이콘 시스템 구현
+
+각 alert 타입에 해당하는 아이콘을 동적으로 로드하는 시스템을 구현했습니다.
+
+```typescript
+const noteIcon = select("body", fromHtml(octicons.info.toSVG()))
+  ?.children[0] ?? { type: "text", value: "Note" };
+
+const tipIcon = select("body", fromHtml(octicons["light-bulb"].toSVG()))
+  ?.children[0] ?? { type: "text", value: "Tip" };
+
+// 다른 타입들...
+```
+
+`@primer/octicons`에서 SVG를 가져와 HAST(HTML AST) 노드로 변환하여 사용합니다. fallback으로 텍스트를 제공하여 아이콘 로드에 실패해도 기본 동작이 보장됩니다.
+
+### MDX JSX 요소 처리
+
+MDX 환경에서 JSX 요소가 포함된 alert도 올바르게 처리할 수 있도록 전용 핸들러를 구현했습니다.
+
+```typescript
+function mdxJsxTextElementHandler(
+  state: State,
+  node: MdxJsxTextElement,
+  parent: MdastParents,
+) {
+  return {
+    type: "element",
+    tagName: node.name!,
+    properties: node.attributes
+      ?.filter(
+        (attr): attr is Extract<typeof attr, { name: string }> =>
+          typeof attr === "object" &&
+          attr !== null &&
+          "name" in attr &&
+          typeof attr.name === "string",
+      )
+      .reduce((props: ElementProperties, attr) => {
+        if (attr.name && attr.value) {
+          const value =
+            typeof attr.value === "string" ? attr.value : String(attr.value);
+          props[attr.name] = value;
+        }
+        return props;
+      }, {} as ElementProperties),
+    children: node.children.map(
+      (c) =>
+        toHast(c, {
+          handlers: { mdxJsxTextElement: mdxJsxTextElementHandler as Handler },
+        }) as ElementContent,
+    ),
+  } satisfies ElementContent;
+}
+```
+
+타입 가드를 사용하여 안전하게 JSX 속성을 처리하고, 재귀적으로 자식 요소들도 변환합니다.
+
+### 최종 HTML 구조 생성
+
+변환된 alert는 다음과 같은 구조의 HTML을 생성합니다.
+
+```html
+<div class="alerts alerts-note">
+  <p class="alerts-title">
+    <svg><!-- 아이콘 --></svg>
+    Note 커스텀 제목
+  </p>
+  <p>alert 내용...</p>
+</div>
+```
+
+이 구조는 CSS로 쉽게 스타일링할 수 있도록 의미있는 클래스명을 사용합니다.
+
+## 커스터마이징과 확장성
+
+### 커스텀 Alert 타입
+
+기본 5가지 타입 외에도 프로젝트에 필요한 커스텀 타입을 추가할 수 있습니다.
+
+```typescript
+.use(remarkAlerts, {
+  types: ['SUCCESS', 'ERROR', 'INFO']
+})
+```
+
+### 스타일링
+
+생성된 HTML은 CSS로 자유롭게 스타일링할 수 있습니다.
+
+```css
+.alerts {
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.alerts-note {
+  border-left: 3px solid #0969da;
+  background-color: #f6f8fa;
+}
+
+.alerts-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+```
+
+## 마무리
+
+단순해 보이는 alert 블록 하나를 구현하는 데도 많은 고려사항이 있었지만, 그만큼 remark/rehype 에코시스템에 대한 깊은 이해를 얻을 수 있었습니다. 블로그에서 유용하게 사용할 예정이며 npm 패키지로 배포해 보는 것도 고려해보도록 하겠습니다.
+
+이 프로젝트의 전체 소스 코드는 [GitHub 저장소](https://github.com/codoodle/codoodle.github.io/tree/main/packages/codoodle-remark-alerts)에서 확인하실 수 있습니다.
