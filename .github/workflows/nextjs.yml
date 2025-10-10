@@ -88,7 +88,7 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Install Playwright browsers (npm)
         if: ${{ steps.detect-package-manager.outputs.manager == 'npm' }}
-        run: npx playwright install chromium
+        run: npx playwright install --with-deps chromium
       - name: Install Playwright browsers (pnpm)
         if: ${{ steps.detect-package-manager.outputs.manager == 'pnpm' }}
         run: pnpm dlx playwright install --with-deps chromium
