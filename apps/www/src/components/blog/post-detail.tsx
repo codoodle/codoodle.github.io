@@ -5,6 +5,7 @@ import {
   generateBlogPostJsonLdBreadcrumb,
 } from "@/lib/json-ld";
 import Link from "next/link";
+import Utterances from "../utterances";
 import PostMeta from "./post-meta";
 
 export default function PostDetail({ post }: { post: Post }) {
@@ -83,6 +84,7 @@ export default function PostDetail({ post }: { post: Post }) {
           )}
         </footer>
       </div>
+      <Utterances className="border-t border-separate lg:block lg:col-[3/4]" />
     </>
   );
 }
