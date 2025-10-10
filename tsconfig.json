@@ -3,6 +3,7 @@
   "references": [
     { "path": "apps/www" },
     { "path": "packages/codoodle-utils" },
-    { "path": "packages/codoodle-mdx" }
+    { "path": "packages/codoodle-mdx" },
+    { "path": "packages/codoodle-remark-alerts" }
   ]
 }

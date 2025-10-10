@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "packages/codoodle-utils/tsconfig.build.json" },
-    { "path": "packages/codoodle-mdx/tsconfig.build.json" }
+    { "path": "packages/codoodle-mdx/tsconfig.build.json" },
+    { "path": "packages/codoodle-remark-alerts/tsconfig.build.json" }
   ]
 }
