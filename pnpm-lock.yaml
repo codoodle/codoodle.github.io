@@ -74,6 +74,9 @@ importers:
       '@codoodle/mdx':
         specifier: workspace:*
         version: link:../../packages/codoodle-mdx
+      '@codoodle/remark-alerts':
+        specifier: workspace:*
+        version: link:../../packages/codoodle-remark-alerts
       '@codoodle/utils':
         specifier: workspace:*
         version: link:../../packages/codoodle-utils

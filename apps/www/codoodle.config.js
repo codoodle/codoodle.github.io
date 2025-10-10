@@ -1,3 +1,4 @@
+import remarkAlerts from "@codoodle/remark-alerts";
 import rehypeMermaid from "rehype-mermaid";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
@@ -96,7 +97,7 @@ export default {
   },
   contentCompileOptions: {
     jsx: true,
-    remarkPlugins: [remarkGfm],
+    remarkPlugins: [remarkGfm, remarkAlerts],
     rehypePlugins: [
       rehypeMermaid,
       [
