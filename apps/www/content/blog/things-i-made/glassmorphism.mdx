@@ -4,6 +4,17 @@ title: 글래스모피즘
 description: 글래스모피즘(Glassmorphism) 디자인을 React와 TailwindCSS로 구현하는 방법을 소개합니다. 반투명 카드와 배경 이미지를 활용해 현대적인 UI를 만드는 실전 예제와 코드까지 제공합니다.
 datePublished: 2025-09-16T00:00:00Z
 dateModified: 2025-09-16T00:00:00Z
+tags:
+  - name: "UI/UX"
+    slug: "ui-ux"
+  - name: "Design"
+    slug: "design"
+  - name: "React"
+    slug: "react"
+  - name: "TailwindCSS"
+    slug: "tailwindcss"
+  - name: "Frontend"
+    slug: "frontend"
 ---
 
 ## 글래스모피즘(Glassmorphism) 컴포넌트 만들기
@@ -172,22 +183,18 @@ export default function Glassmorphism({
 ### 구현 시 고려할 점
 
 1. 성능(Performance)
-
    - backdrop-filter는 GPU 비용이 큽니다. 카드가 여러 개 있거나 애니메이션이 겹치면 렌더링 비용이 급격히 증가합니다. 모바일/저사양 디바이스에서는 `backdrop-blur`를 완화하거나 제거하는 미디어 쿼리 폴백을 적용하세요.
 
 2. 이미지 최적화
-
    - Next.js의 `<Image />`를 사용해 자동 최적화와 적절한 크기 선택을 활용하세요.
    - 중요한 배경(페이지 LCP에 영향을 주는 이미지)은 `priority`나 적절한 `sizes`를 설정해 LCP를 개선하세요. 덜 중요한 배경이면 lazy-loading(기본)에 맡기면 됩니다.
 
 3. 접근성(Accessibility)
-
    - 배경 이미지가 장식용이면 `aria-hidden`을 설정해 스크린 리더에서 무시하게 하세요. 의미가 있다면 `backgroundAlt`처럼 적절한 대체 텍스트를 제공하세요.
    - 카드 자체는 비인터랙티브 요소로 남겨두고(`tabIndex={-1}`), 내부의 실제 인터랙티브 요소(`<a>`, `<button>`)에 탭 접근성을 맡기세요. 내부 포커스가 있을 때 카드에 시각적 변화를 주려면 `:focus-within`을 사용하세요.
    - 키보드 사용자를 위해 `:focus-visible` 스타일을 명확히 해서 포커스 이동이 눈에 띄게 하세요(예: outline 또는 ring).
 
 4. 반응형(Responsive)
-
    - `aspect-square`는 간편하지만 모든 레이아웃에 적합하지 않을 수 있습니다. 카드 크기와 패딩은 뷰포트에 맞춰 미디어 쿼리로 조절하세요. 내부 텍스트가 넘치지 않도록 `max-w` 또는 `text-sm` 같은 유틸도 고려합니다.
 
 ### 마무리
