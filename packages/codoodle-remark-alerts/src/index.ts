@@ -150,27 +150,46 @@ export default function remarkAlerts(options: { types?: AlertType[] }) {
                     type: "text",
                     value: title || type,
                   },
-                  ...(titleRight.length > 0
-                    ? [
-                        {
-                          type: "text",
-                          value: " " + titleRight,
-                        } satisfies ElementContent,
-                      ]
-                    : []),
-                  ...(child.children.length > 1
-                    ? child.children.slice(1).map(
-                        (c) =>
-                          toHast(c, {
-                            handlers: {
-                              mdxJsxTextElement:
-                                mdxJsxTextElementHandler as Handler,
-                            },
-                          }) as ElementContent,
-                      )
-                    : []),
+                  // ...(titleRight.length > 0
+                  //   ? [
+                  //       {
+                  //         type: "text",
+                  //         value: " " + titleRight,
+                  //       } satisfies ElementContent,
+                  //     ]
+                  //   : []),
+                  // ...(child.children.length > 1
+                  //   ? child.children.slice(1).map(
+                  //       (c) =>
+                  //         toHast(c, {
+                  //           handlers: {
+                  //             mdxJsxTextElement:
+                  //               mdxJsxTextElementHandler as Handler,
+                  //           },
+                  //         }) as ElementContent,
+                  //     )
+                  //   : []),
                 ],
               },
+              ...(titleRight.length > 0
+                ? [
+                    {
+                      type: "text",
+                      value: " " + titleRight,
+                    } satisfies ElementContent,
+                  ]
+                : []),
+              ...(child.children.length > 1
+                ? child.children.slice(1).map(
+                    (c) =>
+                      toHast(c, {
+                        handlers: {
+                          mdxJsxTextElement:
+                            mdxJsxTextElementHandler as Handler,
+                        },
+                      }) as ElementContent,
+                  )
+                : []),
               ...node.children
                 .slice(1)
                 .filter((c) => c.type === "paragraph")
