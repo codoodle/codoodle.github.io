@@ -222,7 +222,7 @@ describe("remarkAlerts", () => {
   });
 
   describe("MDX JSX Elements", () => {
-    it("should handle alerts with MDX JSX elements", async () => {
+    it("should handle alerts with self-closing JSX elements", async () => {
       const markdown = `> [!NOTE]
 > 이것은 <CustomComponent prop="value" /> 가 있는 노트입니다.`;
 
@@ -230,6 +230,95 @@ describe("remarkAlerts", () => {
 
       expect(result).toContain('class="alerts alerts-note"');
       expect(result).toContain("CustomComponent");
+    });
+
+    it("should handle alerts with simple JSX elements with children", async () => {
+      const markdown = `> [!TIP]
+> 이것은 <Button>클릭하세요</Button> 버튼이 있습니다.`;
+
+      const result = await processMarkdown(markdown);
+
+      expect(result).toContain('class="alerts alerts-tip"');
+      expect(result).toContain("Button");
+      expect(result).toContain("클릭하세요");
+    });
+
+    it("should handle alerts with JSX elements in separate paragraphs", async () => {
+      const markdown = `> [!WARNING]
+> 첫 번째 단락입니다.
+>
+> <Card>카드 내용</Card>
+>
+> 세 번째 단락입니다.`;
+
+      const result = await processMarkdown(markdown);
+
+      expect(result).toContain('class="alerts alerts-warning"');
+      expect(result).toContain("첫 번째 단락");
+      expect(result).toContain("Card");
+      expect(result).toContain("카드 내용");
+      expect(result).toContain("세 번째 단락");
+    });
+
+    it("should handle alerts with JSX expressions in text", async () => {
+      const markdown = `> [!IMPORTANT]
+> 현재 시간: <Time />이고 사용자는 <span>홍길동</span>입니다.`;
+
+      const result = await processMarkdown(markdown);
+
+      expect(result).toContain('class="alerts alerts-important"');
+      expect(result).toContain("Time");
+      expect(result).toContain("span");
+      expect(result).toContain("홍길동");
+    });
+
+    it("should handle alerts with JSX attributes", async () => {
+      const markdown = `> [!NOTE]
+> <Component className="custom-class" data-testid="test" />를 사용하세요.`;
+
+      const result = await processMarkdown(markdown);
+
+      expect(result).toContain('class="alerts alerts-note"');
+      expect(result).toContain("Component");
+      expect(result).toContain("custom-class");
+    });
+
+    it("should handle alerts with mixed JSX and markdown", async () => {
+      const markdown = `> [!TIP] JSX와 마크다운 혼합
+> 이것은 **볼드 텍스트**이고, <Code>인라인 코드</Code>입니다.
+>
+> 그리고 <Link href="/docs">문서</Link>로 이동할 수 있습니다.`;
+
+      const result = await processMarkdown(markdown);
+
+      expect(result).toContain('class="alerts alerts-tip"');
+      expect(result).toContain("<strong>볼드 텍스트</strong>");
+      expect(result).toContain("Code");
+      expect(result).toContain("Link");
+      expect(result).toContain("문서");
+    });
+
+    it("should handle alerts with inline JSX", async () => {
+      const markdown = `> [!NOTE]
+> 텍스트와 <em>강조</em> 그리고 <CustomIcon />를 함께 사용합니다.`;
+
+      const result = await processMarkdown(markdown);
+
+      expect(result).toContain('class="alerts alerts-note"');
+      expect(result).toContain("<em>강조</em>");
+      expect(result).toContain("CustomIcon");
+      expect(result).toContain("텍스트와");
+    });
+
+    it("should handle alerts with React-style component names", async () => {
+      const markdown = `> [!CAUTION]
+> <Alert.Title>제목</Alert.Title>을 사용하세요.`;
+
+      const result = await processMarkdown(markdown);
+
+      expect(result).toContain('class="alerts alerts-caution"');
+      expect(result).toContain("Alert.Title");
+      expect(result).toContain("제목");
     });
   });
 
