@@ -5,6 +5,11 @@
 
 @layer utilities {
   .prose {
+    :where(li):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+      figure {
+        @apply my-0;
+      }
+    }
     :where(figure):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
       @apply my-6;
     }
