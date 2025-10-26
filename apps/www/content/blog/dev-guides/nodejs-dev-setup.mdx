@@ -20,6 +20,8 @@ Node.js 프로젝트를 시작할 때 어떤 개발 도구를 선택할지는 �
 
 이 글에서는 **실무에서 검증된 8가지 핵심 도구**를 소개하지만, 모든 도구가 모든 프로젝트에 필수는 아닙니다. **프로젝트 규모와 팀 상황에 따라 선택적으로 도입**하여 생산성을 높이는 것이 목표입니다.
 
+> 📦 **완성된 샘플 프로젝트**: 이 가이드의 모든 설정이 적용된 샘플 프로젝트를 [GitHub](https://github.com/codoodle/modern-node-project)에서 확인할 수 있습니다.
+
 ## 시작하기 전에
 
 ### 흔한 우려들
@@ -478,7 +480,7 @@ ESLint는 런타임에서 발생할 수 있는 오류를 개발 단계에서 미
 ```javascript
 // 실제로 자주 발생하는 문제 패턴들
 
-// 1. 🔥 가장 흔한 실수: 할당과 비교 혼동
+// 1. 가장 흔한 실수: 할당과 비교 혼동
 function checkUserPermission(user) {
   if (user.role = 'admin') {  // ❌ = 대신 === 를 써야 함
     return true;
@@ -487,13 +489,13 @@ function checkUserPermission(user) {
 }
 // 결과: user.role이 항상 'admin'으로 덮어써져서 모든 사용자가 관리자가 됨!
 
-// 2. 💥 프로덕션에서 터지는 null/undefined 오류
+// 2. 프로덕션에서 터지는 null/undefined 오류
 function calculateDiscount(user) {
   return user.membership.discount * 100;  // ❌ user.membership가 null일 수 있음
 }
 // ESLint + TypeScript가 사전에 경고
 
-// 3. 🐛 스코프 관련 버그
+// 3. 스코프 관련 버그
 function processItems(items) {
   for (var i = 0; i < items.length; i++) {
     setTimeout(() => {
@@ -503,13 +505,13 @@ function processItems(items) {
 }
 // ESLint가 var 사용을 경고하고 let으로 자동 수정
 
-// 4. 🚨 의도치 않은 전역 변수 생성
+// 4. 의도치 않은 전역 변수 생성
 function saveUserData() {
   userName = 'John';  // ❌ var/let/const 없이 할당
   // 실수로 전역 변수 생성, 다른 코드에 영향줄 수 있음
 }
 
-// 5. 📱 접근할 수 없는 코드 (데드 코드)
+// 5. 접근할 수 없는 코드 (데드 코드)
 function validateEmail(email) {
   if (!email.includes('@')) {
     return false;
@@ -738,7 +740,7 @@ export default defineConfig([
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   }
 }
 ```
@@ -962,9 +964,9 @@ git add .
 git commit -m "add user feature"
 
 # Husky + lint-staged가 자동으로 실행:
-# 1. 변경된 파일에만 ESLint 검사 실행
+# 1. 타입 체크 실행
 # 2. 포맷팅 자동 수정
-# 3. 타입 체크 실행
+# 3. ESLint 검사 실행
 # 4. 테스트 실행 (관련 테스트가 있는 경우)
 # 5. 모든 검사 통과해야만 커밋 완료
 ```
@@ -1065,28 +1067,17 @@ git commit → 변경된 파일만 검사 (빠름, 3개 파일)
 }
 ```
 
-**3단계: 타입 체크 추가**
-```json
-{
-  "lint-staged": {
-    "*.{js,ts}": ["eslint --fix", "prettier --write"],
-    "*.ts": "tsc --noEmit"
-  }
-}
-```
-
-**4단계: 완전한 설정 (테스트 포함)**
-```json
-{
-  "lint-staged": {
-    "*.{js,ts}": (stagedFiles) => [
-      `eslint --fix ${stagedFiles.join(' ')}`,
-      `prettier --write ${stagedFiles.join(' ')}`,
-      `vitest related --run ${stagedFiles.join(' ')}`
-    ],
-    "*.ts": "tsc --noEmit",
-  },
-}
+**3단계: 완전한 설정 (테스트 포함)**
+```js
+// lint-staged.config.js
+export default {
+  "*.{js,ts}": (stagedFiles) => [
+    `eslint --fix ${stagedFiles.join(" ")}`,
+    `prettier --write ${stagedFiles.join(" ")}`,
+    `vitest related --run ${stagedFiles.join(" ")}`,
+  ],
+  "*.{json,md,yaml,yml}": "prettier --write",
+};
 ```
 
 ### 설정 방법
@@ -1102,7 +1093,10 @@ pnpm exec husky init
 
 ```bash
 # .husky/pre-commit 파일 생성
-echo "pnpm exec lint-staged" > .husky/pre-commit
+cat > .husky/pre-commit << 'EOF'
+pnpm exec tsc --noEmit
+pnpm exec lint-staged
+EOF
 ```
 
 **package.json에 lint-staged 설정:**
@@ -1110,10 +1104,9 @@ echo "pnpm exec lint-staged" > .husky/pre-commit
 ```json
 {
   "lint-staged": {
-    "*.{js,ts}": (stagedFiles) => [
-      `eslint --fix ${stagedFiles.join(' ')}`,
-      `prettier --write ${stagedFiles.join(' ')}`,
-      `vitest related --run ${stagedFiles.join(' ')}`
+    "*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write"
     ],
     "*.{json,md,yaml,yml}": "prettier --write",
     "*.ts": "tsc --noEmit"
@@ -1132,7 +1125,6 @@ export default {
     `vitest related --run ${stagedFiles.join(' ')}`
   ],
   "*.{json,md,yaml,yml}": "prettier --write",
-  "*.ts": "tsc --noEmit"
 }
 ```
 
@@ -1155,9 +1147,8 @@ git commit -m "add user feature with tests"
 # 3. Husky + lint-staged 자동 실행
 ✓ Preparing lint-staged...
 ✓ Running tasks for staged files...
-  ✓ eslint --fix on 2 files
   ✓ prettier --write on 2 files
-  ✓ tsc --noEmit on TypeScript files
+  ✓ eslint --fix on 2 files
   ✓ vitest run --reporter=verbose --run on test files
 ✓ Applying modifications from tasks...
 ✓ Cleaning up temporary files...
@@ -1179,14 +1170,12 @@ test('user creation', () => {
 
 사용자의 실제 브라우저 환경에서 애플리케이션이 올바르게 동작하는지 검증하는 도구입니다.
 
-```typescript
-// 수동으로 매번 확인하던 것들
-// 1. 로그인 페이지에서 이메일 입력
-// 2. 비밀번호 입력
-// 3. 로그인 버튼 클릭
-// 4. 대시보드로 이동되는지 확인
-// 5. 사용자 정보가 올바르게 표시되는지 확인
-```
+**수동으로 매번 확인하던 것들:**
+1. 로그인 페이지에서 이메일 입력
+2. 비밀번호 입력
+3. 로그인 버튼 클릭
+4. 대시보드로 이동되는지 확인
+5. 사용자 정보가 올바르게 표시되는지 확인
 
 ```typescript
 // Playwright로 자동화
@@ -1210,13 +1199,11 @@ test("user can login successfully", async ({ page }) => {
 
 단위 테스트와 통합 테스트로는 놓치기 쉬운 실제 사용자 경험을 검증합니다. 개별 컴포넌트는 완벽해도 전체 플로우에서 문제가 발생할 수 있습니다.
 
-```typescript
-// 단위 테스트로는 검증하기 어려운 것들
-// - 여러 페이지 간의 상태 전이
-// - 브라우저별 호환성 문제
-// - 실제 사용자 인터랙션 시나리오
-// - 네트워크 지연이나 비동기 처리 이슈
-```
+**단위 테스트로는 검증하기 어려운 것들:**
+- 여러 페이지 간의 상태 전이
+- 브라우저별 호환성 문제
+- 실제 사용자 인터랙션 시나리오
+- 네트워크 지연이나 비동기 처리 이슈
 
 ### Playwright vs 다른 E2E 도구
 
@@ -1279,49 +1266,35 @@ projects: [
 **❌ 단점:**
 
 1. **높은 복잡성과 유지보수 비용**
-   ```typescript
-   // 브라우저 업데이트, UI 변경 시 테스트 깨짐
-   // 셀렉터 변경, 타이밍 이슈 등으로 인한 지속적 수정 필요
-   ```
+   - 브라우저 업데이트, UI 변경 시 테스트 깨짐
+   - 셀렉터 변경, 타이밍 이슈 등으로 인한 지속적 수정 필요
 
 2. **긴 실행 시간**
    - 단위 테스트 대비 10-100배 느림
    - 브라우저 실행 및 페이지 로딩 오버헤드
 
 3. **불안정성 (Flaky Tests)**
-   ```typescript
-   // 네트워크 지연, 애니메이션, 비동기 처리로 인한 간헐적 실패
-   await expect(page.locator('.loading')).toBeHidden(); // 타이밍 이슈 가능
-   ```
+   - 네트워크 지연, 애니메이션, 비동기 처리로 인한 간헐적 실패
+     ```typescript
+     await expect(page.locator('.loading')).toBeHidden(); // 타이밍 이슈 가능
+     ```
 
 ### 도입 전 고려사항
 
-**✅ Playwright가 필요한 경우:**
+**Playwright가 필요한 경우:**
 
-```typescript
-// 🔄 사용자의 복잡한 플로우
-// 1. 로그인 → 2. 장바구니 담기 → 3. 결제 → 4. 주문 완료
-// 이런 여러 단계의 연결된 동작 테스트
+- 사용자의 복잡한 플로우: "1. 로그인 → 2. 장바구니 담기 → 3. 결제 → 4. 주문 완료" 이런 여러 단계의 연결된 동작 테스트
+- 중요한 비즈니스 로직: 결제 시스템, 회원가입, 핵심 기능의 전체 플로우
+- 멀티 브라우저 지원이 중요한 서비스: 다양한 사용자 환경에서의 호환성 보장 필요
+- 충분한 개발 리소스: E2E 테스트 작성 및 유지보수할 인력과 시간 확보
 
-// 💰 중요한 비즈니스 로직
-// 결제 시스템, 회원가입, 핵심 기능의 전체 플로우
+**Playwright가 과한 경우:**
 
-// 🌐 멀티 브라우저 지원이 중요한 서비스
-// 다양한 사용자 환경에서의 호환성 보장 필요
-
-// 👥 충분한 개발 리소스
-// E2E 테스트 작성 및 유지보수할 인력과 시간 확보
-```
-
-**❌ Playwright가 과한 경우:**
-
-```typescript
-// 🚫 단순한 API 서버 (프론트엔드 없음)
-// 🚫 개인 프로젝트나 프로토타입
-// 🚫 단위 테스트로 충분한 간단한 로직
-// 🚫 빠른 개발 사이클이 중요한 초기 스타트업
-// 🚫 팀 리소스가 부족한 경우
-```
+- 단순한 API 서버 (프론트엔드 없음)
+- 개인 프로젝트나 프로토타입
+- 단위 테스트로 충분한 간단한 로직
+- 빠른 개발 사이클이 중요한 초기 스타트업
+- 팀 리소스가 부족한 경우
 
 **현실적 조언**: 대부분의 경우 **Vitest + 통합 테스트로 충분**합니다. Playwright는 정말 필요한 핵심 기능에만 선별적으로 적용하세요.
 
@@ -1598,32 +1571,30 @@ const config = {
 
 ### 도입 시기와 기준
 
-**✅ dotenv가 필요한 경우:**
+**dotenv가 필요한 경우:**
 
 ```typescript
-// 🔐 민감한 정보가 있는 경우
+// 민감한 정보가 있는 경우
 const config = {
   jwtSecret: process.env.JWT_SECRET, // API 키, 비밀번호
   databaseUrl: process.env.DATABASE_URL, // DB 연결 정보
 };
-
-// 🌍 여러 환경에 배포하는 경우
-// 개발/스테이징/프로덕션 환경 구분 필요
-
-// 👥 팀 프로젝트
-// 개발자마다 다른 로컬 설정 필요
-
-// ☁️ 클라우드 배포
-// AWS, Vercel, Heroku 등에서 환경변수 설정 필요
 ```
 
-**❌ dotenv가 불필요한 경우:**
+**여러 환경에 배포하는 경우:**
+- 개발/스테이징/프로덕션 환경 구분 필요
 
-```typescript
-// 🏠 개인 학습 프로젝트 (민감 정보 없음)
-// 📱 프론트엔드 전용 앱 (환경변수 제한적)
-// 🎯 간단한 스크립트나 유틸리티
-```
+**팀 프로젝트:**
+- 개발자마다 다른 로컬 설정 필요
+
+**클라우드 배포:**
+- AWS, Vercel, Heroku 등에서 환경변수 설정 필요
+
+**dotenv가 불필요한 경우:**
+
+- 개인 학습 프로젝트 (민감 정보 없음)
+- 프론트엔드 전용 앱 (환경변수 제한적)
+- 간단한 스크립트나 유틸리티
 
 ### 단계적 도입 가이드
 
@@ -1822,6 +1793,8 @@ LOG_LEVEL=info
 
 모든 도구를 함께 사용하는 완전한 설정 예시입니다.
 
+
+
 ### package.json
 
 ```json
@@ -1832,40 +1805,46 @@ LOG_LEVEL=info
   "packageManager": "pnpm@10.18.3",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc --build tsconfig.build.json",
+    "clean": "tsc --build tsconfig.build.json --clean",
     "start": "node dist/index.js",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "type-check": "tsc --noEmit"
-  },
-  "lint-staged": {
-    "*.{js,ts}": ["eslint --fix", "prettier --write"],
-    "*.{json,md,yaml,yml}": ["prettier --write"]
+    "type-check": "tsc --noEmit",
+    "prepare": "husky"
   },
   "dependencies": {
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
     "@playwright/test": "^1.56.1",
+    "@tsconfig/node24": "^24.0.1",
+    "@types/express": "^5.0.3",
     "@types/node": "^24.8.1",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.46.1",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "eslint": "^9.38.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.4",
     "prettier": "^3.6.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
     "vitest": "^3.2.4"
   }
 }
@@ -1873,8 +1852,10 @@ LOG_LEVEL=info
 
 ### 프로젝트 구조
 
+모든 도구를 함께 사용하는 완전한 설정 예시입니다. ([완성된 프로젝트 보기](https://github.com/codoodle/modern-node-project))
+
 ```
-my-project/
+modern-node-project/
 ├── src/
 │   ├── types/
 │   │   └── user.ts
@@ -1882,19 +1863,21 @@ my-project/
 │   │   ├── userService.ts
 │   │   └── __tests__/
 │   │       └── userService.test.ts
-│   ├── config/
-│   │   └── env.ts
 │   └── index.ts
 ├── e2e/
-│   └── user-flow.spec.ts
+│   └── conn.spec.ts
 ├── .env.example
 ├── .gitignore
+├── .prettierignore
+├── .husky/
+│   └── pre-commit
 ├── eslint.config.js
+├── lint-staged.config.js
+├── package.json
+├── playwright.config.ts
 ├── prettier.config.js
 ├── tsconfig.json
-├── vitest.config.ts
-├── playwright.config.ts
-└── package.json
+└── vitest.config.ts
 ```
 
 ### 개발 워크플로우
@@ -1918,7 +1901,7 @@ pnpm type-check  # TypeScript 타입 검사
 ```bash
 pnpm test           # 단위 테스트
 pnpm test:coverage  # 커버리지 포함 테스트
-pnpm test:e2e      # E2E 테스트
+pnpm test:e2e       # E2E 테스트
 ```
 
 **4. 커밋 시:**
@@ -1952,7 +1935,7 @@ git commit -m "feat: add user management"
 
 **Playwright**: 사용자 대면 서비스, 중요한 비즈니스 로직이 있는 경우
 
-⚠️ **Playwright 주의사항:**
+**Playwright 주의사항:**
 - 설정과 유지보수가 복잡함
 - 테스트 실행 시간이 오래 걸림
 - 브라우저 의존성으로 인한 불안정성 가능
@@ -1961,122 +1944,80 @@ git commit -m "feat: add user management"
 ### 프로젝트별 권장 조합
 
 **개인 프로젝트/학습용:**
-
-```bash
-# 최소 구성
-TypeScript + ESLint + Prettier + dotenv
-```
+- TypeScript + ESLint + Prettier + dotenv
 
 **팀 프로젝트:**
-
-```bash
-# 기본 구성
-TypeScript + ESLint + Prettier + dotenv + Husky + lint-staged
-```
+- TypeScript + ESLint + Prettier + dotenv + Husky + lint-staged
 
 **프로덕션 서비스:**
-
-```bash
-# 권장 구성 (Playwright 제외)
-TypeScript + ESLint + Prettier + dotenv + Husky + lint-staged + Vitest
-
-# 고급 구성 (정말 필요한 경우만)
-위 모든 도구 + Playwright
-```
+- **권장 구성 (Playwright 제외):** TypeScript + ESLint + Prettier + dotenv + Husky + lint-staged + Vitest
+- **고급 구성 (정말 필요한 경우만):** 위 모든 도구 + Playwright
 
 ## 마무리
 
 ### 상황별 도구 선택 가이드
 
 **개인 학습 프로젝트 (1-2주 진행):**
-```bash
-# 최소 구성으로 시작
-TypeScript + Prettier + ESLint
-
-# 이유: 빠른 피드백과 좋은 습관 형성에 집중
-```
+- TypeScript + Prettier + ESLint
+- **이유:** 빠른 피드백과 좋은 습관 형성에 집중
 
 **사이드 프로젝트 (1-3개월 진행):**
-```bash
-# 기본 구성
-위 3개 + dotenv + Vitest (핵심 로직만)
-
-# 이유: 배포와 테스트 경험 쌓기
-```
+- 위 3개 + dotenv + Vitest (핵심 로직만)
+- **이유:** 배포와 테스트 경험 쌓기
 
 **팀 협업 프로젝트:**
-```bash
-# 협업 중심 구성
-위 5개 + Husky + lint-staged
-
-# 이유: 코드 품질 일관성과 자동화된 검증
-```
+- 위 5개 + Husky + lint-staged
+- **이유:** 코드 품질 일관성과 자동화된 검증
 
 **프로덕션 서비스:**
-```bash
-# 완전한 구성
-위 7개 + Playwright (핵심 기능만)
-
-# 이유: 안정성과 유지보수성 확보
-```
+- 위 7개 + Playwright (핵심 기능만)
+- **이유:** 안정성과 유지보수성 확보
 
 ### 도구 도입 시 흔한 실수와 해결책
 
 **❌ 완벽주의의 함정**
-```typescript
-// 잘못된 접근: 모든 설정을 완벽하게 하려고 함
-// 결과: 며칠간 설정만 만지다가 지침
-
-// 올바른 접근: 기본 설정으로 시작, 필요할 때 개선
-```
+- **잘못된 접근:** 모든 설정을 완벽하게 하려고 함
+- **결과:** 며칠간 설정만 만지다가 지침
+- **올바른 접근:** 기본 설정으로 시작, 필요할 때 개선
 
 **❌ 과도한 규칙 설정**
-```typescript
-// ESLint 규칙 100개 설정 → 개발 속도 저하
-// TypeScript strict 모드 즉시 적용 → 기존 코드 대량 에러
-
-// 해결책: 점진적 적용, 팀원과의 충분한 논의
-```
+- ESLint 규칙 100개 설정 → 개발 속도 저하
+- TypeScript strict 모드 즉시 적용 → 기존 코드 대량 에러
+- **해결책:** 점진적 적용, 팀원과의 충분한 논의
 
 **❌ 도구 의존성 과다**
-```typescript
-// 새로운 도구를 계속 추가하는 습관
-// 도구 학습에 개발 시간 과도하게 소모
-
-// 해결책: 명확한 도입 기준 설정, ROI 고려
-```
+- 새로운 도구를 계속 추가하는 습관
+- 도구 학습에 개발 시간 과도하게 소모
+- **해결책:** 명확한 도입 기준 설정, ROI 고려
 
 ### 개발 워크플로우 정착을 위한 실무 팁
 
 **1단계: 개인 습관 형성 (1-2주)**
-```bash
-# 매일 실천할 것들
+
+**매일 실천할 것들:**
 - 저장 시 Prettier 자동 실행 확인
 - ESLint 에러 즉시 해결하는 습관
 - TypeScript 타입 에러 무시하지 않기
 
-# 목표: 도구 사용이 자연스러워질 때까지
-```
+**목표:** 도구 사용이 자연스러워질 때까지
 
 **2단계: 워크플로우 자동화 (2-3주차)**
-```bash
-# 설정할 것들
+
+**설정할 것들:**
 - Git hooks 설정으로 commit 전 자동 검사
 - CI/CD에 테스트 및 린트 체크 추가
 - 팀원들과 설정 공유
 
-# 목표: 수동 작업 최소화
-```
+**목표:** 수동 작업 최소화
 
 **3단계: 고도화 및 최적화 (1개월 후)**
-```bash
-# 개선할 것들
+
+**개선할 것들:**
 - 느린 린트 규칙 최적화
 - 테스트 커버리지 목표 설정
 - 프로젝트별 맞춤 규칙 정리
 
-# 목표: 팀 생산성 극대화
-```
+**목표:** 팀 생산성 극대화
 
 ### 자주 발생하는 문제와 해결책
 
