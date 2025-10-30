@@ -98,6 +98,9 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.runner }} run build:www
         env:
           SITE_URL: ${{ vars.SITE_URL }}
+      - name: Create CNAME file
+        if: ${{ vars.DOMAIN }}
+        run: echo "${{ vars.DOMAIN }}" > ./apps/www/out/CNAME
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
