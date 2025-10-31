@@ -4,7 +4,7 @@ This is the repository for my personal website, hosted via GitHub Pages. It serv
 
 ## URL
 
-https://codoodle.github.io
+https://codoodle.me
 
 ## License
 
