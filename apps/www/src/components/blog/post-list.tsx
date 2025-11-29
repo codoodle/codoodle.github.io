@@ -56,7 +56,7 @@ export default async function PostList({
       }),
     initialPageParam: 1,
   });
-  console.log(blog?.ContentComponent);
+
   return (
     <>
       {(blog || category || tag) && (
