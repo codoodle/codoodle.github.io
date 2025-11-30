@@ -22,6 +22,12 @@ for (const post of posts) {
   post.slug = trimSlugPrefix(post.slug, 1) || "";
 }
 
+export type Tag = {
+  name: string;
+  slug: string;
+  posts: Post[];
+};
+
 export type Blog = {
   name: string;
   description: string;
@@ -38,12 +44,6 @@ export type Category = {
   categories?: Category[];
   posts?: Post[];
   ContentComponent?: MDXContent;
-};
-
-export type Tag = {
-  name: string;
-  slug: string;
-  posts: Post[];
 };
 
 export type Post = {
@@ -83,19 +83,22 @@ export type PostSimple = {
 
 const tagMap = new Map<string, Tag>();
 
+posts.sort((a, b) => compareDesc(a.datePublished, b.datePublished));
 for (const post of posts as Post[]) {
   if (post.tags) {
     for (const tag of post.tags) {
       if (tagMap.has(tag.slug)) {
         tagMap.get(tag.slug)!.posts.push(post);
       } else {
-        tagMap.set(tag.slug, { ...tag, posts: [post] });
+        tagMap.set(tag.slug, {
+          ...tag,
+          posts: [post],
+        });
       }
     }
   }
 }
 
-posts.sort((a, b) => compareDesc(a.datePublished, b.datePublished));
 for (const post of posts as Post[]) {
   if ((post.categorySlug = trimSlugSuffix(post.slug, 1) || undefined)) {
     post.categories = getCategories(post.categorySlug);
@@ -122,9 +125,6 @@ for (const category of categories as Category[]) {
 }
 
 const tags = Array.from(tagMap.values());
-for (const tag of tags) {
-  tag.posts.sort((a, b) => compareDesc(a.datePublished, b.datePublished));
-}
 
 function getCategories(slug: string | string[]) {
   const ancestors: Category[] = [];

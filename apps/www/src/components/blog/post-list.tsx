@@ -65,10 +65,10 @@ export default async function PostList({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(
               blog
-                ? generateBlogJsonLd(blog)
+                ? generateBlogJsonLd()
                 : category
-                  ? generateBlogCategoryJsonLd(category)
-                  : generateBlogTagJsonLd(tag),
+                  ? generateBlogCategoryJsonLd(category, pageItems)
+                  : generateBlogTagJsonLd(tag, pageItems),
             ),
           }}
         />
