@@ -1,4 +1,4 @@
-import { PostSimple } from "@/content";
+import { DoodleItem, PostSimple } from "@/content";
 
 const PAGE_SIZE = parseInt(process.env.PAGE_SIZE || "5", 10);
 
@@ -37,6 +37,27 @@ export function paginateBlogPost(pageSources: PostSimple[], page: number) {
         description,
         slug,
       })),
+    }),
+  );
+  return {
+    pageItems,
+    pagePrev,
+    pageNext,
+  };
+}
+
+export function paginateDoodleItem(pageSources: DoodleItem[], page: number) {
+  const pageCount = Math.ceil(pageSources.length / PAGE_SIZE);
+  const pagePrev = page > 1 ? page - 1 : undefined;
+  const pageNext = page < pageCount ? page + 1 : undefined;
+  const pageItems = paginate(pageSources, page, PAGE_SIZE).map<DoodleItem>(
+    ({ title, description, datePublished, dateModified, author, slug }) => ({
+      title,
+      description,
+      datePublished,
+      dateModified,
+      author,
+      slug,
     }),
   );
   return {

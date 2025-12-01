@@ -31,6 +31,7 @@ export default function SiteHeader({
           </div>
           <Nav className="ml-auto flex items-center gap-4 text-sm">
             <NavItem href="/blog">블로그</NavItem>
+            <NavItem href="/doodles">낙서들</NavItem>
           </Nav>
         </div>
       </div>

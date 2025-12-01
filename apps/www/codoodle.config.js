@@ -94,6 +94,55 @@ export default {
         },
       },
     },
+    "doodle/index.md{,x}": {
+      name: "Doodle",
+      output: "doodle",
+      frontmatter: {
+        name: {
+          type: "string",
+          required: true,
+        },
+        description: {
+          type: "string",
+        },
+      },
+    },
+    "doodle/**/*.md{,x}": {
+      name: "DoodleItem",
+      output: "doodle/items",
+      frontmatter: {
+        title: {
+          type: "string",
+          required: true,
+        },
+        description: {
+          type: "string",
+        },
+        datePublished: {
+          type: "date",
+          required: true,
+        },
+        dateModified: {
+          type: "date",
+        },
+        author: {
+          type: "string",
+        },
+        tags: {
+          type: "array",
+          fields: {
+            slug: {
+              type: "string",
+              required: true,
+            },
+            name: {
+              type: "string",
+              required: true,
+            },
+          },
+        },
+      },
+    },
   },
   contentCompileOptions: {
     jsx: true,

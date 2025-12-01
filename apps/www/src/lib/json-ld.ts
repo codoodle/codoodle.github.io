@@ -1,10 +1,20 @@
-import { blog, Category, Post, PostSimple, Tag } from "@/content";
+import {
+  blog,
+  Category,
+  doodle,
+  DoodleItem,
+  Post,
+  PostSimple,
+  Tag,
+} from "@/content";
 import { format } from "date-fns";
 import {
   Blog as SchemaBlog,
   BlogPosting as SchemaBlogPosting,
+  BreadcrumbList as SchemaBreadcrumbList,
   CollectionPage as SchemaCollectionPage,
   ListItem as SchemaListItem,
+  TechArticle as SchemaTechArticle,
   WebSite as SchemaWebSite,
   WithContext as SchemaWithContext,
 } from "schema-dts";
@@ -171,10 +181,7 @@ function generateBlogPostJsonLd(
 
 function generateBlogPostJsonLdBreadcrumb(
   post: Post | PostSimple,
-): SchemaWithContext<{
-  "@type": "BreadcrumbList";
-  itemListElement: SchemaListItem[];
-}> {
+): SchemaWithContext<SchemaBreadcrumbList> {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -207,11 +214,133 @@ function generateBlogPostJsonLdBreadcrumb(
   };
 }
 
+function generateDoodleJsonLd(
+  part?: DoodleItem[],
+): SchemaWithContext<SchemaCollectionPage> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: doodle.name,
+    description: doodle.description,
+    url: `${SITE_URL}/doodles`,
+    hasPart: part?.map((item) => ({
+      "@type": "TechArticle",
+      headline: item.title,
+      description: item.description,
+      datePublished: format(item.datePublished, "yyyy-MM-dd"),
+      dateModified: format(item.dateModified, "yyyy-MM-dd"),
+      url: `${SITE_URL}/doodles/${item.slug}`,
+      author: {
+        "@type": "Person",
+        name: item.author ?? "Codoodle",
+      },
+    })),
+  };
+}
+
+function generateDoodleTagJsonLd(
+  tag: Tag,
+  part?: DoodleItem[],
+): SchemaWithContext<SchemaCollectionPage> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `#${tag.name}`,
+    url: `${SITE_URL}/doodles/tags/${tag.slug}`,
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: SITE_URL,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: doodle.name,
+          item: `${SITE_URL}/doodles`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: `#${tag.name}`,
+          item: `${SITE_URL}/doodles/tags/${tag.slug}`,
+        },
+      ],
+    },
+    hasPart: part?.map((item) => ({
+      "@type": "TechArticle",
+      headline: item.title,
+      description: item.description,
+      datePublished: format(item.datePublished, "yyyy-MM-dd"),
+      dateModified: format(item.dateModified, "yyyy-MM-dd"),
+      url: `${SITE_URL}/doodles/${item.slug}`,
+      author: {
+        "@type": "Person",
+        name: item.author ?? "Codoodle",
+      },
+    })),
+  };
+}
+
+function generateDoodleItemJsonLd(
+  item: DoodleItem,
+): SchemaWithContext<SchemaTechArticle> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: item.title,
+    description: item.description,
+    datePublished: format(item.datePublished, "yyyy-MM-dd"),
+    dateModified: format(item.dateModified, "yyyy-MM-dd"),
+    url: `${SITE_URL}/doodles/${item.slug}`,
+    author: {
+      "@type": "Person",
+      name: item.author ?? "Codoodle",
+    },
+  };
+}
+
+function generateDoodleItemJsonLdBreadcrumb(
+  item: DoodleItem,
+): SchemaWithContext<SchemaBreadcrumbList> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SITE_URL,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Doodles",
+        item: `${SITE_URL}/doodles`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: item.title,
+        item: `${SITE_URL}/doodles/${item.slug}`,
+      },
+    ],
+  };
+}
+
 export {
   generateBlogCategoryJsonLd,
   generateBlogJsonLd,
   generateBlogPostJsonLd,
   generateBlogPostJsonLdBreadcrumb,
   generateBlogTagJsonLd,
+  generateDoodleItemJsonLd,
+  generateDoodleItemJsonLdBreadcrumb,
+  generateDoodleJsonLd,
+  generateDoodleTagJsonLd,
   generateSiteJsonLd,
 };
