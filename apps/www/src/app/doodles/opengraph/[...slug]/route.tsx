@@ -44,96 +44,94 @@ export async function GET(
   const logoSrc = `data:image/png;base64,${logoData}`;
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        color: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+        height: "100%",
+        padding: "32px 32px",
+        position: "relative",
+        width: "100%",
+      }}
+    >
       <div
         style={{
-          color: "#fff",
+          background: "radial-gradient(circle at center, #191919, black)",
           display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-          height: "100%",
-          padding: "32px 32px",
-          position: "relative",
-          width: "100%",
+          height: "630px",
+          position: "absolute",
+          width: "1200px",
+        }}
+      ></div>
+      <div
+        style={{
+          display: "flex",
+          height: "630px",
+          position: "absolute",
+          width: "1200px",
         }}
       >
-        <div
-          style={{
-            background: "radial-gradient(circle at center, #191919, black)",
-            display: "flex",
-            height: "630px",
-            position: "absolute",
-            width: "1200px",
-          }}
-        ></div>
-        <div
-          style={{
-            display: "flex",
-            height: "630px",
-            position: "absolute",
-            width: "1200px",
-          }}
-        >
-          {Array.from({ length: 14 })
-            .fill(0)
-            .map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  background:
-                    "radial-gradient(circle at center, black, transparent)",
-                  height: "2px",
-                  left: "0",
-                  position: "absolute",
-                  top: `${(i + 1) * 65 - 10}px`,
-                  width: "1200px",
-                }}
-              ></div>
-            ))}
-          {Array.from({ length: 26 })
-            .fill(0)
-            .map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  background:
-                    "radial-gradient(circle at center, black, transparent)",
-                  bottom: "0",
-                  left: `${(i + 1) * 65 - 16}px`,
-                  position: "absolute",
-                  top: "0",
-                  width: "2px",
-                }}
-              ></div>
-            ))}
-        </div>
-        <div
-          style={{
-            alignItems: "center",
-            display: "flex",
-          }}
-        >
-          {/* eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element */}
-          <img src={logoSrc} height="128" style={{ filter: "invert(1)" }} />
-        </div>
-        <div
-          style={{
-            fontSize: "48px",
-            paddingLeft: "16px",
-          }}
-        >
-          {doodle ? doodle.name : tag ? `#${tag.name}` : item.title}
-        </div>
-        <div
-          style={{
-            fontSize: "36px",
-            paddingLeft: "16px",
-          }}
-        >
-          {doodle ? doodle.description : tag ? undefined : item.description}
-        </div>
+        {Array.from({ length: 14 })
+          .fill(0)
+          .map((_, i) => (
+            <div
+              key={i}
+              style={{
+                background:
+                  "radial-gradient(circle at center, black, transparent)",
+                height: "2px",
+                left: "0",
+                position: "absolute",
+                top: `${(i + 1) * 65 - 10}px`,
+                width: "1200px",
+              }}
+            ></div>
+          ))}
+        {Array.from({ length: 26 })
+          .fill(0)
+          .map((_, i) => (
+            <div
+              key={i}
+              style={{
+                background:
+                  "radial-gradient(circle at center, black, transparent)",
+                bottom: "0",
+                left: `${(i + 1) * 65 - 16}px`,
+                position: "absolute",
+                top: "0",
+                width: "2px",
+              }}
+            ></div>
+          ))}
       </div>
-    ),
+      <div
+        style={{
+          alignItems: "center",
+          display: "flex",
+        }}
+      >
+        {/* eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element */}
+        <img src={logoSrc} height="128" style={{ filter: "invert(1)" }} />
+      </div>
+      <div
+        style={{
+          fontSize: "48px",
+          paddingLeft: "16px",
+        }}
+      >
+        {doodle ? doodle.name : tag ? `#${tag.name}` : item.title}
+      </div>
+      <div
+        style={{
+          fontSize: "36px",
+          paddingLeft: "16px",
+        }}
+      >
+        {doodle ? doodle.description : tag ? undefined : item.description}
+      </div>
+    </div>,
     {
       width: 1200,
       height: 630,
