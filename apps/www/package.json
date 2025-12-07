@@ -22,13 +22,13 @@
     "@codoodle/remark-alerts": "workspace:*",
     "@codoodle/utils": "workspace:*",
     "@headlessui/react": "^2.2.9",
-    "@primer/octicons-react": "^19.18.0",
-    "@tailwindcss/postcss": "^4.1.13",
+    "@primer/octicons-react": "^19.21.1",
+    "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/typography": "^0.5.19",
-    "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-query": "^5.90.12",
     "date-fns": "^4.1.0",
     "next": "catalog:",
-    "playwright": "^1.56.0",
+    "playwright": "^1.57.0",
     "postcss": "^8.5.6",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -36,8 +36,8 @@
     "rehype-pretty-code": "^0.14.1",
     "remark-gfm": "^4.0.1",
     "schema-dts": "^1.1.5",
-    "shiki": "^3.13.0",
-    "tailwindcss": "^4.1.13"
+    "shiki": "^3.19.0",
+    "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
     "@types/mdx": "^2.0.13",
